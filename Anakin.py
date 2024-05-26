@@ -1,83 +1,39 @@
 import math
-# def rein(asr, dos):
-#     dia = float(dos)
-#     pi = math.pi
-#     area = pi * ((dos/2)**2)
-#     xx = asr / area
-#     xxa = math.ceil(xx)
-#     print('Provide', xxa, dos,'mm bar')
-#
-# rein(asr=177, dos=16)
+import os
 
-# val = int(input('Enter a number to check whether it is even or odd:'))
-# if (val%2) == 0:
-#     print('The entered value is even')
-# else:
-#     print('The entered value is odd')
-
-# import math
-# asr = input('Enter the area of steel required: ')
-# di = input('Enter the preferred diameter of reinforcement: ')
-# ara = float(asr)
-# diam = float(di)
-# pi = math.pi
-# area = pi * (diam/2)**2
-# nor = ara / area
-# noq = math.ceil(nor)
-# if (noq%2) == 0:
-#     noq = noq
-# else:
-#     noq = noq + 1
-# at = float(noq * area)
-# print('Provide', noq,'Y',diam,'mm bars @', at, 'bottom')
-
-# thi = input('Enter the slab thickness: ')
-# ith = float(thi)
-# vac = ith * 1000.0
-# tha = mod1 * 1000.0
-# perc = vac / tha
-# ts = Mm * perc
-
-import math
-
-
-def get_float_input(prompt):
-    return float(input(prompt))
-
+def get_float_env(var_name, default=0.0):
+    return float(os.getenv(var_name, default))
 
 def calculate_area(length, width):
     return length * width
-
 
 def calculate_steel_area(moment, fyy, depth, width):
     la = 0.95
     z = la * depth
     return la * fyy * z
 
-
 def calculate_reinforcement_area(area, bar_size):
     pi = math.pi
     return pi * (bar_size / 2) ** 2
-
 
 def main():
     print('Panel dimensions\n')
     concrete_strength = 1000  # kN/m^2
 
-    panel_length = get_float_input('Enter panel length: ')
-    panel_width = get_float_input('Enter panel width: ')
-    entire_slab_depth = get_float_input('Enter entire slab depth: ')
-    slab_thickness = get_float_input('Enter the top slab thickness: ')
+    panel_length = get_float_env('panel_length')
+    panel_width = get_float_env('panel_width')
+    entire_slab_depth = get_float_env('entire_slab_depth')
+    slab_thickness = get_float_env('slab_thickness')
 
     vacuum_area = slab_thickness * 1000.0
     total_area = panel_length * panel_width * entire_slab_depth
     perc = vacuum_area / (entire_slab_depth * 1000.0)
 
-    void_mould_length = get_float_input('\nEnter mould length: ')
-    void_mould_width = get_float_input('Enter mould width: ')
-    volume_of_void_in_one_mould = get_float_input('Volume of void in one mould: ')
-    bottom_length_of_rib = get_float_input('Enter the bottom length of rib: ')
-    top_length_of_rib = get_float_input('Enter the top length of rib: ')
+    void_mould_length = get_float_env('void_mould_length')
+    void_mould_width = get_float_env('void_mould_width')
+    volume_of_void_in_one_mould = get_float_env('volume_of_void_in_one_mould')
+    bottom_length_of_rib = get_float_env('bottom_length_of_rib')
+    top_length_of_rib = get_float_env('top_length_of_rib')
 
     rib_breadth = ((bottom_length_of_rib + top_length_of_rib) / 2) * 1000.0
     rib_area = void_mould_length * void_mould_width
@@ -90,13 +46,13 @@ def main():
 
     net_void_volume = total_area - void_volume
 
-    dead_load_constant = get_float_input('\nEnter dead load constant: ')
-    live_load_constant = get_float_input('Enter live load constant: ')
+    dead_load_constant = get_float_env('dead_load_constant')
+    live_load_constant = get_float_env('live_load_constant')
 
     dead_load = 24.0 * net_void_volume * dead_load_constant
-    finishes_value = get_float_input('Enter the value for finishes: ')
+    finishes_value = get_float_env('finishes_value')
     finishes = finishes_value * panel_length * panel_width * dead_load_constant
-    live_load_value = get_float_input('Enter the value for live load: ')
+    live_load_value = get_float_env('live_load_value')
     live_load = live_load_value * panel_length * panel_width * live_load_constant
     total_load = finishes + dead_load + live_load
     unit_load = total_load / calculate_area(panel_length, panel_width)
@@ -107,17 +63,17 @@ def main():
     print('Unit load per rib = ', unit_load_per_rib,'KN/m per rib')
 
     print('Enter moment coefficients from Table 3.14(BS 8110-1:1997)')
-    negative_moment_at_continuous_edge = get_float_input('\nEnter negative moment at continuous edge: ')
-    positive_moment_at_mid_span = get_float_input('Enter positive moment at mid-span: ')
+    negative_moment_at_continuous_edge = get_float_env('negative_moment_at_continuous_edge')
+    positive_moment_at_mid_span = get_float_env('positive_moment_at_mid_span')
 
     print('\nDesigning for Span:')
     span_moment = unit_load_per_rib * panel_width ** 2 * positive_moment_at_mid_span
     print('Moment = ', span_moment,'KNm per rib')
 
-    steel_strength = get_float_input('\nEnter the strength of steel: ')
-    stirrup_diameter = get_float_input('Enter diameter of links: ')
-    cover_length = get_float_input('Enter the length of cover: ')
-    fcu_value = get_float_input('Enter value for FCu: ')
+    steel_strength = get_float_env('steel_strength')
+    stirrup_diameter = get_float_env('stirrup_diameter')
+    cover_length = get_float_env('cover_length')
+    fcu_value = get_float_env('fcu_value')
 
     effective_depth = entire_slab_depth * 1000 - stirrup_diameter - cover_length
     beam_width = panel_width * 1000
@@ -132,7 +88,7 @@ def main():
 
     print('Area of steel required = ', As_ratio,'mm^2')
 
-    preferred_reinforcement_size = get_float_input('Enter the preferred reinforcement size: ')
+    preferred_reinforcement_size = get_float_env('preferred_reinforcement_size')
     reinforcement_area = math.pi * (preferred_reinforcement_size / 2) ** 2
 
     number_of_bars = math.ceil(As_ratio / reinforcement_area)
@@ -156,7 +112,7 @@ def main():
 
     print('Area of steel required = ', As_support,'mm^2')
 
-    preferred_support_reinforcement_size = get_float_input('Enter the preferred reinforcement size: ')
+    preferred_support_reinforcement_size = get_float_env('preferred_support_reinforcement_size')
     reinforcement_area = math.pi * (preferred_support_reinforcement_size / 2) ** 2
 
     number_of_bars = math.ceil(As_support / reinforcement_area)
@@ -194,7 +150,7 @@ def main():
     print('Area of Steel for the top slab = ', Top_slab_area_of_steel, 'mm^2')
 
     print('Choose a satisfactory bar spacing and area from the spacing table within the 8mm row')
-    bar_spacing = get_float_input('Enter bar spacing: ')
+    bar_spacing = get_float_env('bar_spacing')
     tab = bar_spacing / concrete_strength
     no_of_bars_bottom = math.ceil(panel_length / tab)
     no_of_bars_top = math.ceil(panel_width / tab)
@@ -203,7 +159,7 @@ def main():
     print('Provide', no_of_bars_top, 'Y 8mm bars @', bar_spacing, 'mm c/c top\n')
 
     print('Calculating Shear:')
-    shear_coefficient = get_float_input('Enter value of shear coefficient: ')
+    shear_coefficient = get_float_env('shear_coefficient')
     shear_force = shear_coefficient * unit_load_per_rib * panel_width
     print('Maximum shear force in the rib = ', shear_force,'KN')
 
@@ -223,25 +179,8 @@ def main():
         print('Vc = ', vc, 'N/mm^2, Shear not satisfied\n')
 
     print('Providing Shear reinforcement:')
-    shear_reinforcement_size = get_float_input('Enter shear reinforcement size: ')
-    shear_reinforcement_strength = get_float_input('Enter the strength of the shear reinforcement: ')
-
-    shear_reinforcement_area = (math.pi * (shear_reinforcement_size ** 2) / 4) * 2
-    sv = (la * shear_reinforcement_area * shear_reinforcement_strength) / (rib_breadth * (v - vc))
-    sp = (la * shear_reinforcement_area * shear_reinforcement_strength) / (0.4 * rib_breadth)
-
-    spacing = math.ceil(sp)
-    ad = 0.5 * vc
-    bg = 0.4 + vc
-
-    if v < ad:
-        print('Provide minimum links')
-    elif ad < v < bg:
-        print('Provide R', shear_reinforcement_size, 'mm @', spacing, 'mm c/c')
-
-
-if __name__ == "__main__":
-    main()
+    shear_reinforcement_size = get_float_env('shear_reinforcement_size')
+    shear_re
 
 
 
